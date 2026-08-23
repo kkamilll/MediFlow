@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue E-Prescription | MediFlow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+</head>
+<body>
+
+    <div class="app-shell animate-in">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div style="cursor: pointer;" onclick="location.href='index.html'">
+                <h1 style="font-size: 1.5rem; margin: 0;">MediFlow</h1>
+            </div>
+            <nav style="margin: 0;">
+                <a href="index.html">Home</a>
+                <a href="doctor.html" class="active">Doctor</a>
+                <a href="pharmacy.html">Pharmacist</a>
+            </nav>
+        </header>
+
+        <div class="grid-2">
+            
+            <div>
+                <div class="card">
+                    <h2 class="card-title">👨‍⚕️ E-Prescription Creator</h2>
+                    
+                    <div class="form-group">
+                        <label for="pesel">Patient PESEL (11 digits)</label>
+                        <input type="text" id="pesel" placeholder="Enter 11 digits" maxlength="11">
+                        <span class="error-hint" id="pesel-error" style="color: var(--danger); font-size: 0.8rem; display: none;">Invalid PESEL format (11 digits required)</span>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 24px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <h3 style="font-size: 1rem; margin-bottom: 20px; color: var(--primary-dark);">Add Medication to Prescription</h3>
+                        
+                        <div class="form-group">
+                            <label>Medication Name</label>
+                            <input type="text" id="med-name" placeholder="e.g., Amoxicillin, Ibuprofen...">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label>Package Quantity</label>
+                                <input type="number" id="med-qty" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit Price (PLN)</label>
+                                <input type="number" id="med-price" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prescribed Dosage</label>
+                            <input type="text" id="med-dosage" placeholder="e.g., 1-0-1 (morning and evening)">
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; background: white; padding: 12px; border-radius: 8px;">
+                            <input type="checkbox" id="med-promo" checked style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="med-promo" style="margin: 0; cursor: pointer; font-size: 0.85rem;">Product is reimbursed / eligible for discounts</label>
+                        </div>
+
+                        <button class="btn btn-outline" id="add-med-btn">Add to Prescription</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="min-height: 540px; display: flex; flex-direction: column;">
+                    <h2 class="card-title">📋 Prescription Items</h2>
+                    
+                    <div id="med-list-container" style="flex: 1; border: 2px dashed var(--border); border-radius: var(--radius-sm); margin-bottom: 24px; background: #fafafa; overflow-y: auto;">
+                        <div id="empty-msg" style="padding: 60px 20px; text-align: center; color: var(--text-muted);">
+                            <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;">📦</div>
+                            No medications added yet.<br>Add items to issue an e-prescription.
+                        </div>
+                        <div id="med-items"></div>
+                    </div>
+
+                    <button class="btn btn-primary" id="save-btn" style="height: 60px;">Issue E-Prescription (Generate PIN)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-overlay" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div class="card animate-in" style="width: 450px; text-align: center; padding: 48px;">
+                <div style="width: 80px; height: 80px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                    <span style="font-size: 2.5rem;">✅</span>
+                </div>
+                <h2 style="margin-bottom: 8px;">Prescription Issued!</h2>
+                <p style="color: var(--text-muted); margin-bottom: 32px;">Provide the patient with the access PIN below:</p>
+                
+                <div style="background: var(--bg); padding: 32px; border-radius: var(--radius-md); border: 2px solid var(--primary); margin-bottom: 32px;">
+                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">YOUR ACCESS PIN</div>
+                    <div style="font-size: 4rem; font-weight: 800; letter-spacing: 12px; color: var(--text);" id="final-pin">----</div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary" onclick="location.reload()">Issue Another Prescription</button>
+                    <a href="pharmacy.html" class="btn btn-outline" style="text-decoration: none;">💊 Go to Pharmacy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/doctor.js"></script>
+</body>
+</html>

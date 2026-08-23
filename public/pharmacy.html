@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Fulfillment | MediFlow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+</head>
+<body>
+
+    <div class="app-shell animate-in">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div style="cursor: pointer;" onclick="location.href='index.html'">
+                <h1 style="font-size: 1.5rem; margin: 0;">MediFlow</h1>
+            </div>
+            <nav style="margin: 0;">
+                <a href="index.html">Home</a>
+                <a href="doctor.html">Doctor</a>
+                <a href="pharmacy.html" class="active">Pharmacist</a>
+            </nav>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title">🔍 Patient Verification</h2>
+            <div class="grid-2" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+                <div class="form-group">
+                    <label>Patient PESEL</label>
+                    <input type="text" id="v-pesel" placeholder="11 digits" maxlength="11">
+                </div>
+                <div class="form-group">
+                    <label>PIN Code</label>
+                    <input type="text" id="v-pin" placeholder="4 digits" maxlength="4">
+                </div>
+            </div>
+            <button class="btn btn-primary" id="v-btn">Fetch Prescription Data</button>
+        </div>
+
+        <div id="content" class="hidden">
+            <div class="grid-2">
+                
+                <div>
+                    <div class="card">
+                        <h2 class="card-title">📦 Prescribed Products</h2>
+                        <div id="med-list" style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h2 class="card-title">💰 Financial Summary</h2>
+
+                        <div class="checkout-summary">
+                            <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                                MediFlow Discount Engine
+                            </div>
+
+                            <div class="progress-track">
+                                <div class="progress-fill" id="p-bar"></div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 24px;">
+                                <span>200 PLN (5%)</span>
+                                <span>500 PLN (15%)</span>
+                                <span>1000 PLN (25%)</span>
+                            </div>
+
+                            <div id="promo-tip" style="padding: 12px; border-radius: 8px; background: #f0fdf4; font-size: 0.85rem; color: var(--secondary); text-align: center; font-weight: 700; margin-bottom: 24px; border: 1px solid #dcfce7;">
+                                Select items to calculate discounts
+                            </div>
+
+                            <div class="form-group" style="display: flex; gap: 12px; margin-bottom: 32px;">
+                                <input type="text" id="promo-input" placeholder="Promo code (e.g. MEDI10)" style="margin: 0; font-size: 0.9rem;">
+                                <button class="btn btn-outline" style="width: auto; padding: 0 20px;" id="apply-promo-btn">Apply</button>
+                            </div>
+
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 600;">
+                                    <span style="color: var(--text-muted);">Subtotal</span>
+                                    <span id="s-subtotal">0.00 PLN</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--secondary); font-weight: 700;">
+                                    <span>Applied Discount <span id="s-perc">(0%)</span></span>
+                                    <span id="s-disc">-0.00 PLN</span>
+                                </div>
+                                <div class="summary-total" style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span>Total Due</span>
+                                    <span id="s-total">0.00 PLN</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary mt-4" id="buy-btn" style="height: 64px; font-size: 1.1rem; background: var(--secondary); margin-top: 24px;">Finalize & Dispense Items</button>
+                        <button class="btn btn-outline mt-4" onclick="window.print()" id="print-btn" style="display: none; margin-top: 16px;">🖨️ Print Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @media print {
+            header, nav, .card:first-child, .checkout-summary input, .btn, #promo-tip { display: none !important; }
+            body { background: white; color: black; }
+            .card { box-shadow: none; border: 2px solid #000; width: 100%; padding: 40px; margin: 0; }
+            .app-shell { max-width: 100%; padding: 0; }
+            .summary-total { border-top: 2px solid #000; }
+            .list-item { border-bottom: 1px solid #000; }
+        }
+    </style>
+
+    <script src="js/pharmacy.js"></script>
+</body>
+</html>

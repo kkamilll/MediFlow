@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediFlow | E-Prescription Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+</head>
+<body>
+
+    <div class="app-shell animate-in">
+        <header style="text-align: center; margin-bottom: 60px;">
+            <h1>MediFlow</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">
+                Modern platform connecting doctors, patients, and pharmacists
+            </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
+            
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; text-align: center; padding: 48px 32px;">
+                <div>
+                    <div style="font-size: 4rem; margin-bottom: 24px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">👨‍⚕️</div>
+                    <h2 style="margin-bottom: 16px;">Doctor Portal</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 32px;">
+                        Issue secure e-prescriptions in seconds. Automated PESEL validation and dosage recommendations.
+                    </p>
+                </div>
+                <a href="doctor.html" class="btn btn-primary">Launch Doctor Portal</a>
+            </div>
+
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; text-align: center; padding: 48px 32px;">
+                <div>
+                    <div style="font-size: 4rem; margin-bottom: 24px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">💊</div>
+                    <h2 style="margin-bottom: 16px;">Pharmacist Portal</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 32px;">
+                        Fulfill prescriptions with an automated discount engine. Tiered rebates and promo code support.
+                    </p>
+                </div>
+                <a href="pharmacy.html" class="btn btn-outline">Open Pharmacy Counter</a>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 32px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h3 style="font-size: 1rem; margin: 0 0 6px 0; color: var(--text);">🛠️ Administrative Panel</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 8px;">
+                        Database Status:
+                        <strong id="stat-active" style="color: var(--primary);">—</strong> active •
+                        <strong id="stat-used" style="color: var(--secondary);">—</strong> fulfilled
+                        <button onclick="loadStats(true)" id="refresh-btn" title="Refresh statistics" style="background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; color: var(--text-muted);">🔄</button>
+                        <span id="last-updated" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="pharmacy.html" class="btn btn-outline" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">💊 Open Pharmacy</a>
+                    <button id="clear-btn" class="btn btn-danger" style="width: auto; padding: 10px 24px; font-size: 0.85rem;" onclick="clearUsed()">
+                        🗑️ Delete Fulfilled
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer style="margin-top: 40px; text-align: center; border-top: 1px solid var(--border); padding-top: 32px;">
+            <p style="color: var(--text-muted); font-size: 0.8rem;">
+                © 2026 MediFlow Digital Health Solutions. Course assignment for Poznan University of Technology.
+            </p>
+        </footer>
+    </div>
+
+<script>
+    async function loadStats(manual = false) {
+        const btn = document.getElementById('refresh-btn');
+        if (manual) { btn.style.animation = 'spin 0.6s linear'; setTimeout(() => btn.style.animation = '', 700); }
+        try {
+            const [activeRes, usedRes] = await Promise.all([
+                fetch('/api/prescriptions/stats/active'),
+                fetch('/api/prescriptions/stats/used')
+            ]);
+            const active = await activeRes.json();
+            const used = await usedRes.json();
+            document.getElementById('stat-active').innerText = active.count;
+            document.getElementById('stat-used').innerText = used.count;
+            const now = new Date();
+            document.getElementById('last-updated').innerText =
+                `(${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')})`;
+        } catch {
+            document.getElementById('stat-active').innerText = '?';
+            document.getElementById('stat-used').innerText = '?';
+        }
+    }
+
+    async function clearUsed() {
+        const usedCount = document.getElementById('stat-used').innerText;
+        if (usedCount === '0') return alert('No fulfilled prescriptions found to delete.');
+        if (!confirm(`Are you sure you want to delete ${usedCount} fulfilled prescription(s) from the database? This action cannot be undone.`)) return;
+
+        const btn = document.getElementById('clear-btn');
+        btn.disabled = true;
+        btn.innerText = 'Deleting...';
+
+        try {
+            const res = await fetch('/api/prescriptions/used', { method: 'DELETE' });
+            const data = await res.json();
+            alert(`✅ Successfully removed ${data.deleted} fulfilled prescription(s).`);
+            loadStats();
+        } catch {
+            alert('An error occurred while deleting prescriptions.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '🗑️ Delete Fulfilled';
+        }
+    }
+
+    loadStats();
+    setInterval(() => loadStats(), 15000);
+</script>
+<style>
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</body>
+</html>
