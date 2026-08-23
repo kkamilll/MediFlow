@@ -1,0 +1,30 @@
+{
+  "name": "mediflow",
+  "version": "3.0.0",
+  "description": "MediFlow - Course assignment for Organization of Commercial Services on the Internet (Poznan University of Technology)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "win-start": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; exit 0\" && node server/server.js",
+    "win-dev": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; exit 0\" && nodemon server/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "keywords": [
+    "e-prescription",
+    "health",
+    "pharmacy",
+    "doctor",
+    "medical"
+  ],
+  "author": "MediFlow Team",
+  "license": "UNLICENSED"
+}
