@@ -56,7 +56,7 @@ app.post('/api/prescriptions', async (req, res) => {
   try {
     const { pesel, medications } = req.body;
 
-    if (!pesel || pesel.length !== 11 || isNaN(pesel)) {
+    if (!pesel || !/^\d{11}$/.test(String(pesel))) {
       return res.status(400).json({ error: 'Invalid PESEL format (11 digits required)' });
     }
 
@@ -80,6 +80,15 @@ app.post('/api/prescriptions', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error while saving prescription' });
+  }
+});
+
+app.get('/api/prescriptions', async (req, res) => {
+  try {
+    const prescriptions = await Prescription.find().sort({ createdAt: -1 });
+    res.json(prescriptions);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error while fetching prescriptions' });
   }
 });
 
@@ -148,6 +157,16 @@ app.delete('/api/prescriptions/used', async (req, res) => {
   }
 });
 
+app.delete('/api/prescriptions/:id', async (req, res) => {
+  try {
+    const deleted = await Prescription.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Prescription not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error occurred while deleting prescription' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
@@ -157,7 +176,7 @@ app.listen(PORT, () => {
   console.log(`🌍 URL: http://localhost:${PORT}`);
   console.log(`----------------------------------`);
 
-  if (!process.env.NO_AUTO_OPEN && !process.env.DOCKER_CONTAINER) {
+  if (!process.env.NO_AUTO_OPEN) {
     const { exec } = require('child_process');
     const startCmd = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
     exec(`${startCmd} http://localhost:${PORT}`, () => {});

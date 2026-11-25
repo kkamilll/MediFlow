@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="admin.title">Panel Administratora | MediFlow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+</head>
+<body>
+
+    <div class="app-shell animate-in">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 16px;">
+            <div style="cursor: pointer;" onclick="location.href='index.html'">
+                <h1 style="font-size: 1.5rem; margin: 0;">MediFlow</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <nav style="margin: 0;">
+                    <a href="index.html" data-i18n="nav.home">Start</a>
+                    <a href="doctor.html" data-i18n="nav.doctor">Lekarz</a>
+                    <a href="pharmacy.html" data-i18n="nav.pharmacy">Farmaceuta</a>
+                    <a href="admin.html" class="active" data-i18n="nav.admin">Administrator</a>
+                </nav>
+                <div class="lang-switcher" role="group" aria-label="Language">
+                    <button type="button" class="lang-btn active" data-lang="pl">PL</button>
+                    <button type="button" class="lang-btn" data-lang="en">EN</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h2 class="card-title" data-i18n="admin.heading" style="margin-bottom: 8px;">🛠️ Panel Administratora</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span data-i18n="index.dbStatus">Status bazy danych:</span>
+                        <strong id="stat-active" style="color: var(--primary);">—</strong> <span data-i18n="index.activeLabel">aktywnych</span> •
+                        <strong id="stat-used" style="color: var(--secondary);">—</strong> <span data-i18n="index.usedLabel">zrealizowanych</span>
+                        <button onclick="loadStats(true)" id="refresh-btn" data-i18n-title="index.refreshTitle" title="Odśwież statystyki" style="background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; color: var(--text-muted);">🔄</button>
+                        <span id="last-updated" style="font-size: 0.78rem; color: var(--text-muted);"></span>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="clear-btn" class="btn btn-danger" data-i18n="index.clearBtn" style="width: auto; padding: 10px 24px; font-size: 0.85rem;" onclick="clearUsed()">
+                        🗑️ Usuń zrealizowane
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="filter-tabs" role="tablist">
+                    <button type="button" class="filter-tab active" data-filter="all" data-i18n="admin.filterAll">Wszystkie</button>
+                    <button type="button" class="filter-tab" data-filter="active" data-i18n="admin.filterActive">Aktywne</button>
+                    <button type="button" class="filter-tab" data-filter="used" data-i18n="admin.filterUsed">Zrealizowane</button>
+                </div>
+                <input type="text" id="admin-search" class="admin-search" data-i18n-placeholder="admin.searchPlaceholder" placeholder="Szukaj po PESEL, PIN lub nazwie leku...">
+            </div>
+
+            <div id="admin-prescriptions" class="admin-list" style="max-height: none;"></div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

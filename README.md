@@ -1,98 +1,89 @@
-# 🌊 MediFlow - E-Prescription Management System
+# MediFlow
 
-> **Course Assignment — Poznan University of Technology (Politechnika Poznańska)**  
-> Course: Organization of Commercial Services on the Internet (Organizacja usług komercyjnych w Internecie)
+Aplikacja webowa do wystawiania i realizacji e-recept, stworzona jako zadanie na przedmiot *Organizacja usług komercyjnych w Internecie* (Politechnika Poznańska).
 
-MediFlow is a modern, responsive web application for comprehensive e-prescription handling. The system simulates electronic prescription lifecycle workflows in digital healthcare, connecting a Doctor Portal (prescription issuance) and a Pharmacy Portal (fulfillment with an automated discount engine).
+System składa się z trzech głównych widoków: **Portalu Lekarza** (tworzenie e-recept i generowanie 4-cyfrowego kodu PIN), **Portalu Farmaceuty** (wyszukiwanie recept po PESEL + PIN, częściowa lub pełna realizacja oraz obliczanie rabatów) oraz **Panelu Administratora** (podgląd i zarządzanie wszystkimi receptami w bazie).
 
-![Status](https://img.shields.io/badge/Status-Stable-success?style=for-the-badge)
-![Tech Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20Express%20%7C%20MongoDB-blue?style=for-the-badge)
+## Funkcjonalności
 
----
+- **Przełącznik języka (PL / EN)** dostępny na każdej stronie, z zapamiętywaniem wyboru w `localStorage`.
+- **Portal Lekarza (`doctor.html`)**:
+  - dodawanie leków z nazwą, liczbą opakowań, ceną i dawkowaniem,
+  - walidacja numeru PESEL (11 cyfr),
+  - oznaczanie leków jako refundowane,
+  - generowanie 4-cyfrowego kodu PIN po zapisaniu recepty.
+- **Portal Farmaceuty (`pharmacy.html`)**:
+  - wyszukiwanie recepty po numerze PESEL i kodzie PIN,
+  - możliwość realizacji wybranych pozycji (częściowy wykup),
+  - automatyczne progi rabatowe dla leków refundowanych:
+    - od 200 PLN: **5%**
+    - od 500 PLN: **15%**
+    - od 1000 PLN: **25%**
+  - obsługa kodów rabatowych (nie łączą się z rabatem progowym - automatycznie wybierany jest wyższy rabat):
+    - `MEDI10` (10%)
+    - `RABAT20` (20%)
+  - podgląd paska postępu do kolejnego progu oraz wydruk paragonu.
+- **Panel Administratora (`admin.html`)**:
+  - licznik aktywnych i zrealizowanych recept w bazie,
+  - podgląd listy wszystkich recept (PESEL, PIN, data, leki i statusy) z filtrowaniem i wyszukiwaniem,
+  - usuwanie pojedynczych recept lub wszystkich zrealizowanych jednym przyciskiem.
 
-## ✨ Key Features
+## Wymagania
 
-- **👨‍⚕️ Doctor Portal**:
-  - Issue e-prescriptions with PESEL validation (11 digits).
-  - Automatically generate unique 4-digit security PIN codes.
-  - Mark medications as reimbursed / eligible for refund (influences discount calculation).
-  - Support for partial fulfillment (patients don't have to buy all prescribed medications at once).
+- Node.js (wersja 18 lub nowsza)
+- MongoDB (lokalna instancja lub baza w MongoDB Atlas)
 
-- **💊 Pharmacist Portal**:
-  - Fetch prescription details securely via PESEL + PIN.
-  - **Automated Discount Engine** — applies tier-based discounts exclusively to eligible/reimbursed medications:
-    | Reimbursed Medications Value | System Discount |
-    |------------------------------|-----------------|
-    | ≥ 200 PLN                    | 5%              |
-    | ≥ 500 PLN                    | 15%             |
-    | ≥ 1000 PLN                   | 25%             |
-  - **Promo Codes** (adds a bonus discount on top of the refund discount):
-    | Promo Code | Additional Discount |
-    |------------|---------------------|
-    | `MEDI10`   | +10%                |
-    | `RABAT20`  | +20%                |
-  - Real-time progress bar towards the next discount tier.
-  - Print / download transaction receipt.
-  - Visual status updates for pending vs. dispensed items.
+## Uruchomienie projektu
 
-- **🛠️ Administrative Panel** (Home Page):
-  - Real-time database metrics (active vs. fulfilled prescriptions).
-  - Clean up fulfilled prescriptions with a single click.
-
-- **🎨 Premium UI/UX**: Clean aesthetic typography (*Outfit*), smooth micro-interactions, card layouts, and full mobile responsiveness.
-
----
-
-## 🚀 Quick Start
-
-### 1. Prerequisites
-- [Docker & Docker Desktop](https://www.docker.com/products/docker-desktop/) (Recommended)
-- OR [Node.js](https://nodejs.org/) (v16+) and [MongoDB](https://www.mongodb.com/try/download/community) (for running without Docker)
-
----
-
-### 2. Quick Run with Docker 🐳 (Recommended)
-
-This is the easiest way. Docker automatically spins up MongoDB and the Node.js application in an isolated environment.
+1. Zainstaluj zależności:
 
 ```bash
-docker-compose up --build
-```
-The app will be immediately available at: `http://localhost:3000`
-
----
-
-### 3. Traditional Local Setup
-
-If you prefer running directly on your machine with a local MongoDB instance:
-
-```bash
-# 1. Install dependencies
 npm install
+```
 
-# 2. Configure environment (optional, defaults to local MongoDB)
-# Copy .env.example to .env if you need custom database credentials
-cp .env.example .env
+2. Skopiuj plik `.env.example` do `.env` i uzupełnij dane połączenia z MongoDB (jeśli korzystasz z domyślnej lokalnej bazy, krok ten jest opcjonalny):
 
-# 3. Start production server (auto-opens browser)
+```env
+PORT=3000
+MONGO_URI=mongodb://127.0.0.1:27017/mediflow
+```
+
+3. Uruchom serwer:
+
+```bash
+# Tryb standardowy
 npm start
 
-# OR Start development server with auto-reload
+# Tryb deweloperski (nodemon)
 npm run dev
 ```
 
----
+Na Windowsie dostępne są też skrypty `npm run win-start` oraz `npm run win-dev`, które przed startem zamykają ewentualny proces zajmujący port `3000`.
 
-## 🗄️ Database Structure (MongoDB)
+Po uruchomieniu aplikacja działa pod adresem `http://localhost:3000`.
 
-**Collection:** `mediflow` → `prescriptions`
+## API
 
-Each prescription document follows this schema:
+| Metoda | Endpoint | Opis |
+| --- | --- | --- |
+| `GET` | `/api/prescriptions` | Pobranie listy wszystkich recept (od najnowszych) |
+| `POST` | `/api/prescriptions` | Wystawienie nowej e-recepty i zwrot kodu PIN |
+| `GET` | `/api/prescriptions/:pesel/:pin` | Pobranie recepty po PESEL i PIN |
+| `POST` | `/api/prescriptions/buy` | Oznaczenie wybranych leków jako wydane |
+| `GET` | `/api/prescriptions/stats/active` | Liczba aktywnych recept |
+| `GET` | `/api/prescriptions/stats/used` | Liczba zrealizowanych recept |
+| `DELETE` | `/api/prescriptions/used` | Usunięcie wszystkich zrealizowanych recept |
+| `DELETE` | `/api/prescriptions/:id` | Usunięcie pojedynczej recepty po ID |
+
+## Model danych (MongoDB)
+
+Kolekcja `prescriptions` w bazie `mediflow`:
+
 ```json
 {
   "pesel": "95010112345",
   "pin": "1111",
-  "status": "active", // "active" | "used"
+  "status": "active",
   "medications": [
     {
       "name": "Xarelto 20mg",
@@ -100,65 +91,43 @@ Each prescription document follows this schema:
       "quantity": 2,
       "price": 180.00,
       "canDiscount": true,
-      "status": "pending" // "pending" | "done"
+      "status": "pending"
     }
   ],
   "createdAt": "2026-05-12T10:00:00.000Z"
 }
 ```
 
----
+- `status` recepty: `active` lub `used`
+- `status` leku: `pending` lub `done`
 
-## 📡 API Endpoints
+## Struktura katalogów
 
-| Method   | Endpoint                             | Description                                  |
-|----------|--------------------------------------|----------------------------------------------|
-| `POST`   | `/api/prescriptions`                 | Create and issue a new prescription          |
-| `GET`    | `/api/prescriptions/:pesel/:pin`     | Retrieve prescription by PESEL & PIN         |
-| `POST`   | `/api/prescriptions/buy`             | Finalize medication dispensing & fulfillment |
-| `GET`    | `/api/prescriptions/stats/active`    | Count of active prescriptions                |
-| `GET`    | `/api/prescriptions/stats/used`      | Count of fulfilled prescriptions             |
-| `DELETE` | `/api/prescriptions/used`            | Purge all completed prescriptions           |
-
----
-
-## 📂 Project Structure
-
-```
+```text
 MediFlow/
 ├── public/
-│   ├── index.html       # Home page & Admin Dashboard
-│   ├── doctor.html      # Doctor Portal
-│   ├── pharmacy.html    # Pharmacy Portal
-│   ├── css/style.css    # Unified design system & stylesheets
+│   ├── index.html          # Pulpit (wybór portalu)
+│   ├── doctor.html         # Portal lekarza
+│   ├── pharmacy.html       # Portal farmaceuty
+│   ├── admin.html          # Panel administratora
+│   ├── css/style.css       # Style aplikacji
 │   └── js/
-│       ├── doctor.js    # Prescription creation logic & validation
-│       └── pharmacy.js  # Dispensing logic & discount calculation engine
+│       ├── i18n.js         # Tłumaczenia PL / EN
+│       ├── ui.js           # Powiadomienia (toast) i okna potwierdzeń
+│       ├── doctor.js       # Logika wystawiania recept
+│       ├── pharmacy.js     # Logika realizacji i obliczania rabatów
+│       └── admin.js        # Logika panelu administratora
 ├── server/
-│   ├── server.js        # Express.js REST API & static file server
+│   ├── server.js           # Serwer Express i endpointy API
 │   └── models/
-│       └── Prescription.js  # Mongoose Data Model
-├── .dockerignore        # Docker build exclusions
-├── .env.example         # Template for environment variables
-├── .gitignore           # Git ignore list
-├── docker-compose.yml   # Multi-container orchestration (Node + Mongo)
-├── Dockerfile           # Node.js production image configuration
-├── package.json         # Dependencies & execution scripts
-└── README.md            # Project documentation
+│       └── Prescription.js # Schemat Mongoose
+├── .env.example
+├── package.json
+└── README.md
 ```
 
----
+## Technologie
 
-## 🛠️ Technology Stack
-
-| Layer       | Technology                                            |
-|-------------|-------------------------------------------------------|
-| Backend     | Node.js, Express.js                                   |
-| Database    | MongoDB (Mongoose ODM)                                |
-| Frontend    | Vanilla HTML5, CSS3, JavaScript ES6+                  |
-| Typography  | Google Fonts (Outfit), CSS Variables, Animations      |
-| DevOps / CI | Docker, Docker Compose, Nodemon                       |
-
----
-
-*© 2026 MediFlow — Course assignment for Poznan University of Technology.*
+- **Backend:** Node.js, Express.js
+- **Baza danych:** MongoDB, Mongoose
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+)
